@@ -1,0 +1,241 @@
+import math
+#Needs the math library for certain mathematical operations later on.
+string = str()
+#Declare the imput string here, saying that it is a string.
+INTEGERLIMIT = (int)(2147483647)
+#Declare the integer limit which is then built into smaller functions to prevent the calculations from exceeding this amount.
+operands = []
+#operands list is in fact used like a stack for calculations.
+print("You can now start interacting with the SRPN calculator")
+
+#Contains the first value for dictionary when r is first entered.
+RCounter = 1
+
+#Dictionary contains all the random numbers and counter helps cycle through them since they're always the same
+RandomValueDict = {
+  1: 1804289383,
+  2: 846930886,
+  3: 1681692777,
+  4: 1714636915,
+  5: 1957747793,
+  6: 424238335,
+  7: 719885386,
+  8: 1649760492,
+  9: 596516649,
+  10: 1189641421,
+  11: 1025202362,
+  12: 1350490027,
+  13: 783368690,
+  14:1102520059,
+  15: 2044897763,
+  16:1967513926,
+  17: 1365180540,
+  18:1540383426,
+  19: 304089172,
+  20: 1303455736,
+  21: 35005211,
+  22: 521595368,
+  23: 1804289383
+}
+  
+  #checks whether the character given is any form of valid input apart from numbers and spaces
+def checkOperator(character):
+  if ((character == '+') or (character == '-') or (character == '*') or(character == '/') or(character == '^') or (character == '%') or (character == 'd') or (character == 'r') or (character == '=')):
+    return 1;
+  else:
+    return 0;
+#checks whether the given character can be used to make calculations with
+def checkBinaryOperator(character):
+  if ((character == '+') or (character == '-') or (character == '*') or(character == '/') or(character == '^') or (character == '%')):
+    return 1;
+  else:
+    return 0;
+#checks whether the given character is a number or a decimal point
+def checkOperand(character):
+  if (character == '0') or (character == '1') or (character == '2') or (character == '3') or (character == '4') or (character == '5') or (character == '6') or (character == '7') or (character == '8') or (character == '9') or (character == '.'):
+    return 1;
+  else:
+    return 0;
+
+#adds two given numbers
+def add(x, y):
+  if (float)(x) + (float)(y) > INTEGERLIMIT:
+    return INTEGERLIMIT;
+  elif (float)(x) + (float)(y) < -INTEGERLIMIT:
+    return -INTEGERLIMIT;
+  else:
+    return (float)(x) + (float)(y);
+#these are very self-explanatory
+def subtract(x, y):
+  if (float)(x) - (float)(y) > INTEGERLIMIT:
+    return INTEGERLIMIT;
+  elif (float)(x) - (float)(y) < -INTEGERLIMIT:
+    return -INTEGERLIMIT;
+  else:
+    return (float)(x) - (float)(y);
+
+def multiply(x, y):
+  if (float)(x) * (float)(y) > INTEGERLIMIT:
+    return INTEGERLIMIT;
+  elif (float)(x) * (float)(y) < -INTEGERLIMIT:
+    return -INTEGERLIMIT;
+  else:
+    return (float)(x) * (float)(y);
+
+def divide(x, y):
+  if (float)(x) / (float)(y) > INTEGERLIMIT:
+    return INTEGERLIMIT;
+  elif (float)(x) / (float)(y) < -INTEGERLIMIT:
+    return -INTEGERLIMIT;
+  else:
+    return (float)(x) / (float)(y);
+
+def modulus(x, y):
+  if (float)(x) % (float)(y) > INTEGERLIMIT:
+    return INTEGERLIMIT;
+  elif (float)(x) % (float)(y) < -INTEGERLIMIT:
+    return -INTEGERLIMIT;
+  else:
+    return (float)(x) % (float)(y);
+
+def power(x, y):
+  if ((float)(y) < 0):
+    print("Negative power.")
+  if math.pow((float)(x), (float)(y)) > INTEGERLIMIT:
+    return INTEGERLIMIT;
+  elif math.pow((float)(x), (float)(y)) < -INTEGERLIMIT:
+    return -INTEGERLIMIT;
+  else:
+    return math.pow((float)(x), (float)(y));
+
+#Finds the FULL number from left to right from a given left-hand side position
+def FindNumberatPos(string, position):
+  newstring = str()
+  while (position < len(string) + 1):
+    #Until the character becomes an operator, space, end of string, keep adding the characters to the end of the string.
+    if checkOperator(string[position]) or string[position] == ' ' or (position + 1) == len(string):
+      newstring = (str)(newstring) + (str)(string[position])
+      return newstring;
+    elif checkOperand(string[position]):
+      #Fully abusing the fact that python does dynamic variable declaration- allows us to declare a variable as string and change into float
+      newstring = (str)(newstring) + (str)(string[position])
+    position = position + 1
+  return newstring;
+
+#Calls the maths functions at the top so that I don't have to write each time which calculation has to be done
+def doMath(x, y, operator):
+  result = float()
+  if operator == '+':
+    result = add(x, y)
+  elif operator == '-':
+    result = subtract(x, y)
+  elif operator == '*':
+    result = multiply(x, y)
+  elif operator == '/':
+    if (float)(y) == 0:
+      print("Divide by 0.")
+    else:
+      result = divide(x, y)
+  elif operator == '^':
+    result = power(x, y)
+  elif operator == '%':
+    result = modulus(x, y)
+  return result;
+
+#Main function that resolves the input string and calls every other function.
+def resolveString(string):
+  global RCounter
+  newNumber = True
+  NegativeNumber = False 
+
+
+#Runs through every character provided from left to right.
+  for character in string:
+    #checks is the first sign is negative, in which case the sign becomes part of the number itself
+    
+    if string[0] == '-':
+      try:
+        if checkOperand(string[string.find('-') + 1]):
+          NegativeNumber = True
+          #If the number is negative, then find the rest of the number to the right of that character and return it.
+          operand = (float)(FindNumberatPos(string, string.find('-') + 1))
+          if len(operands) < 23:
+            operands.extend('-')
+            operands[-1] = (str)(operands[-1]) + (str)(operand)
+            string = string.replace('-', '')
+            string = string.replace((str)(operand), '')
+          else:
+            #If there is a space, then reply with a stack overflow.
+            print("Stack overflow.")
+      except:
+        pass
+    #If the character is a number, add it on the end of an existing number or a new number in the list
+    if checkOperand(character):
+      #If the number is not negative carry on as normal
+      if NegativeNumber == False:
+        #If the number given is not part of an old number and is a new number then extend only if 23 elements are not exceeded. 
+        if newNumber == True:
+          if len(operands) < 23:
+            operands.extend([character])
+            string = string.replace((str)(character), '')
+            newNumber = False
+          else:
+            print("Stack overflow.")
+            #If it's not part of a newNumber, turn it into string and simply attach the character to the right of the previous number
+        elif newNumber == False:
+          operands[-1] = (str)(operands[-1]) + (str)(character)
+          string = string.replace((str)(character), '')
+    #if the character is a symbol, then either do the calculation, say "underflow error" or check for an operand STRAIGHT after the symbol.
+    elif checkBinaryOperator(character):
+      newNumber = True
+      if len(operands) == 1:
+        #if the symbol after the operator is an operand, then get the whole number and do the calculation, since now there are two operands and one operator
+        try:
+          print
+          if checkOperand(string[string.find(character) + 1]):
+            operand = (float)(FindNumberatPos(string, string.find(character) + 1))
+            #do the calculation if the stack has not overflowed yet
+            if len(operands) < 23: 
+              operands.extend([operand])
+              string = string.replace((str)(operand), '')
+              string = string.replace((str)(character), '')
+              operands[-2] = doMath(operands[-2], operands[-1], (str)(character))
+              operands.remove(operands[-1])
+            else:
+              print("Stack overflow.")
+          else:
+            print("Stack underflow.")
+        except:
+          print("Stack underflow.")
+      if len(operands) > 1:
+        if character != '-':
+          #operands[-2] is the same as accessing the element that is at the second top of the stack; operands[-1] is the same as accessing the top of the stack.
+          operands[-2] = doMath(operands[-2], operands[-1], (str)(character))
+          string = string.replace((str)(character), '')
+          operands.remove(operands[-1])
+    #If there is a space, then the next number must be a new number.
+    elif character == ' ':
+      newNumber = True
+    #If d, =, or r are entered, this if condition takes care of those.
+    elif (character == 'd') or (character == '=') or (character == 'r'):
+      if (character == 'd'):
+        for x in operands:
+          print(math.trunc((float)(x)))
+      if (character == '='):
+        print(math.trunc((float)(operands[-1])))
+      if (character == 'r'):
+        if len(operands) < 23:
+          #Accesses a different value of the random number dictionary each time.
+          operands.extend([RandomValueDict[RCounter]])
+        if (RCounter) == 23:
+          print("Stack overflow.")
+          (RCounter) = 1
+        else:
+          (RCounter) = (RCounter) + 1
+    else:
+      print("Unrecognised operator or operand '" + (str)(character) + "'.")
+
+#while loop keeps program running indefinitely and the resolve function running also.
+while (1):
+  string = input()
+  resolveString(string)
